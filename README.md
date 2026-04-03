@@ -137,17 +137,89 @@ One of the most clinically significant findings is that the vast majority of in-
 
 ## Figures
 
-All figures are generated and saved automatically when the script runs.
+### Kaplan-Meier survival curves
 
-| Figure | Description |
-|---|---|
-| `figures/km_age_group.png` | KM survival curves by age group with log-rank p-value |
-| `figures/km_obesity.png` | KM survival curves by obesity history |
-| `figures/km_right_vent_mi.png` | KM survival curves by right ventricular MI |
-| `figures/cox_forest_plot.png` | Cox model hazard ratios with 95% confidence intervals |
-| `figures/variable_importance.png` | Predictors ranked by absolute log-hazard magnitude |
-| `figures/roc_curve.png` | ROC curve with AUC — discriminative ability of the Cox model |
-| `figures/calibration_plot.png` | Predicted probability vs. observed event rate across deciles |
+**Survival by age group**
+
+![KM curves by age group](https://raw.githubusercontent.com/YOUR_USERNAME/mi-survival-analysis/main/figures/km_age_group.png)
+
+Three survival curves, one per age band. The gap between the 65-and-over curve
+and the younger groups is visible from day 1 and widens over time. The log-rank
+p-value in the subtitle confirms whether that separation is statistically significant.
+
+---
+
+**Survival by obesity history**
+
+![KM curves by obesity](https://raw.githubusercontent.com/YOUR_USERNAME/mi-survival-analysis/main/figures/km_obesity.png)
+
+Two curves comparing patients with and without obesity history. Because obesity
+is rare in this dataset (~3%), confidence bands around the obese group are wider.
+A steep early drop in the obese group is consistent with the odds ratio of 3.19
+found in the companion logistic model.
+
+---
+
+**Survival by right ventricular MI**
+
+![KM curves by right ventricular MI](https://raw.githubusercontent.com/YOUR_USERNAME/mi-survival-analysis/main/figures/km_right_vent_mi.png)
+
+The most visually striking of the three KM plots. Right ventricular MI is an acute
+haemodynamic event — its effect is expected to be immediate. A sharp early drop
+in the right ventricular MI curve within the first 24 hours is consistent with
+the haemodynamic mechanism: RV dysfunction directly impairs forward circulation
+and can precipitate cardiogenic shock rapidly after admission.
+
+---
+
+### Cox model outputs
+
+**Hazard ratios with 95% confidence intervals**
+
+![Cox forest plot](https://raw.githubusercontent.com/YOUR_USERNAME/mi-survival-analysis/main/figures/cox_forest_plot.png)
+
+Each point is the estimated hazard ratio for that predictor after adjusting for the
+other four. Points are coloured by direction — red for risk-increasing (HR > 1),
+blue for protective (HR < 1). The dashed line at HR = 1 is the reference. The
+x-axis is on a log scale, so an HR of 2 and an HR of 0.5 appear equidistant from
+the centre.
+
+---
+
+**Variable importance — ranked by log-hazard magnitude**
+
+![Variable importance](https://raw.githubusercontent.com/YOUR_USERNAME/mi-survival-analysis/main/figures/variable_importance.png)
+
+Predictors ranked by absolute log-hazard coefficient — the strength of each
+predictor's contribution regardless of direction. Complements the forest plot:
+where the forest plot shows direction and precision, this plot shows raw magnitude
+and ranking.
+
+---
+
+### Diagnostics
+
+**ROC curve**
+
+![ROC curve](https://raw.githubusercontent.com/YOUR_USERNAME/mi-survival-analysis/main/figures/roc_curve.png)
+
+Plots the true positive rate against the false positive rate as the classification
+threshold varies across the Cox linear predictor. The diagonal dashed line is a
+random classifier (AUC = 0.5). The AUC value is annotated on the plot — values
+above 0.70 are generally considered clinically useful for prognostic models.
+
+---
+
+**Calibration plot**
+
+![Calibration plot](https://raw.githubusercontent.com/YOUR_USERNAME/mi-survival-analysis/main/figures/calibration_plot.png)
+
+Patients are divided into ten bins by predicted probability of death. Mean predicted
+probability in each bin is plotted against the observed proportion who actually died.
+Points on the diagonal indicate perfect calibration. Points above the line mean the
+model underpredicts risk; below means overprediction. Point size reflects the number
+of patients in each bin — smaller points at the high-probability end reflect the
+class imbalance and should be interpreted with caution.
 
 ---
 
