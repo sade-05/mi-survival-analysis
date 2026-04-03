@@ -48,14 +48,14 @@ The table below summarises the patient population split by outcome. Patients who
 
 | Variable | Survived | Died |
 |---|---|---|
-| N | — | — |
-| Age — mean (SD) | — | — |
-| Male (%) | — | — |
-| Obesity (%) | — | — |
-| Bronchial asthma (%) | — | — |
-| Diabetes (%) | — | — |
-| Chronic heart failure (%) | — | — |
-| Right ventricular MI (%) | — | — |
+| N | 1,429 | 271 |
+| Age — mean (SD) | 61.2 (11.1) | 65.8 (10.4) |
+| Male (%) | 62.1% | 64.2% |
+| Obesity (%) | 2.2% | 4.8% |
+| Bronchial asthma (%) | 1.7% | 5.2% |
+| Diabetes (%) | 12.9% | 17.3% |
+| Chronic heart failure (%) | 9.4% | 18.8% |
+| Right ventricular MI (%) | 2.4% | 7.4% |
 
 ---
 
