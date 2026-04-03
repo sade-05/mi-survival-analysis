@@ -57,8 +57,6 @@ The table below summarises the patient population split by outcome. Patients who
 | Chronic heart failure (%) | — | — |
 | Right ventricular MI (%) | — | — |
 
-> Values populate automatically from `outputs/descriptive_table.csv` when the script runs.
-
 ---
 
 ## Methods
