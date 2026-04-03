@@ -1,0 +1,7 @@
+"term","estimate","conf.low","conf.high","p.value"
+"age_group45 to 64",3.556,1.303,9.701,0.013
+"age_group65 and over",6.539,2.411,17.739,0
+"obesityObesity",1.966,1.064,3.633,0.031
+"asthmaAsthma",2.229,1.179,4.217,0.014
+"chf_historyCHF history",1.932,1.386,2.692,0
+"right_vent_miYes",3.954,2.49,6.28,0
