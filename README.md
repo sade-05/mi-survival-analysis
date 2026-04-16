@@ -64,7 +64,7 @@ Patients who died were older on average and had higher rates of every comorbidit
 
 ## Methods
 
-### Part A — Kaplan-Meier Estimation
+### Part A - Kaplan-Meier Estimation
 
 The **Kaplan-Meier (KM) estimator** is a nonparametric method for estimating the survival function S(t), the probability of surviving beyond time t, directly from censored data. It makes no distributional assumptions about event times. It is the standard first step in any survival analysis.
 
@@ -87,7 +87,7 @@ The log-rank statistic follows a chi-squared distribution with k−1 degrees of 
 
 KM curves and the log-rank test are **unadjusted**. They show the marginal relationship between a single predictor and survival without controlling for the other four predictors. Two patients with the same age group may differ in obesity status, cardiac history, and MI type, all of which also affect survival. The Cox model in Part B provides the adjusted estimates that account for this.
 
-### Part B — Cox Proportional Hazards Model
+### Part B - Cox Proportional Hazards Model
 
 The **Cox proportional hazards model** is a semiparametric regression framework that simultaneously adjusts for multiple predictors while modelling the time-to-event outcome. Rather than estimating the survival function directly, it models the **hazard function** h(t|X): the instantaneous rate of dying at time t for a patient with covariate vector X, given survival to that point:
 
@@ -106,7 +106,7 @@ A hazard ratio of 2.5 for a given predictor means patients with that characteris
 
 The key underlying assumption is **proportional hazards**, that the hazard ratio between any two patients is constant over the entire follow-up period. In other words, if patients with right ventricular MI have twice the hazard of those without, that ratio of two holds at day 1, day 2, and day 3. This assumption is tested using **Schoenfeld residuals** via `cox.zph()`: under the proportional hazards assumption, Schoenfeld residuals should show no systematic trend with time. A significant p-value (< 0.05) for a predictor suggests its effect is time-varying, which in this dataset is clinically plausible, the impact of acute haemodynamic findings at admission may be very large in the first hours and attenuate as the patient stabilises.
 
-### Part C — Model Diagnostics
+### Part C - Model Diagnostics
 
 Three diagnostic outputs assess how well the Cox model discriminates between patients and how reliably its predicted probabilities correspond to observed outcomes.
 
@@ -120,13 +120,13 @@ Three diagnostic outputs assess how well the Cox model discriminates between pat
 
 ## Key Findings
 
-### Kaplan-Meier — unadjusted survival differences
+### Kaplan-Meier - unadjusted survival differences
 
 Survival curves differed significantly by age group (log-rank p < 0.05), with the 65-and-over cohort showing the steepest early decline. The survival gap between age groups is most pronounced in the first 24 hours, suggesting that age-related risk concentrates in the acute phase rather than accumulating over the hospital stay.
 
 Obesity and right ventricular MI also produced visually and statistically distinct survival curves. Patients with right ventricular MI showed a sharp early drop that was not observed in other subgroups, consistent with the haemodynamic mechanism: right ventricular dysfunction directly impairs forward circulation and can precipitate cardiogenic shock rapidly after admission.
 
-### Cox model — adjusted hazard ratios
+### Cox model - adjusted hazard ratios
 
 After simultaneously adjusting for all five predictors, right ventricular MI and older age group retained the largest hazard ratios, consistent with the findings from the companion logistic regression. The presence of bronchial asthma and chronic heart failure also remained independently associated with increased hazard, confirming that their effect in the logistic model was not confounded by the other predictors.
 
@@ -148,9 +148,9 @@ One of the most clinically significant findings is that the vast majority of in-
 
 ![KM curves by age group](figures/km_age_group.png)
 
-Three survival curves, one per age band. The gap between the 65-and-over group
+*Three survival curves, one per age band. The gap between the 65-and-over group
 and younger patients is visible from day 1 and widens over time. The log-rank
-p-value in the subtitle confirms whether the separation is statistically significant.
+p-value in the subtitle confirms whether the separation is statistically significant.*
 
 ---
 
@@ -158,10 +158,10 @@ p-value in the subtitle confirms whether the separation is statistically signifi
 
 ![KM curves by obesity](figures/km_obesity.png)
 
-Two curves comparing patients with and without obesity history. Because obesity
+*Two curves comparing patients with and without obesity history. Because obesity
 is rare in this dataset (~3%), confidence bands around the obese group are wider.
 A steep early drop in the obese group is consistent with the odds ratio of 3.19
-found in the companion logistic model.
+found in the companion logistic model.*
 
 ---
 
@@ -169,10 +169,10 @@ found in the companion logistic model.
 
 ![KM curves by right ventricular MI](figures/km_right_vent_mi.png)
 
-The most visually striking of the three KM plots. A sharp early drop in the right
+*The most visually striking of the three KM plots. A sharp early drop in the right
 ventricular MI curve within the first 24 hours is consistent with the haemodynamic
 mechanism, RV dysfunction directly impairs forward circulation and can precipitate
-cardiogenic shock rapidly after admission.
+cardiogenic shock rapidly after admission.*
 
 ---
 
@@ -182,10 +182,10 @@ cardiogenic shock rapidly after admission.
 
 ![Cox forest plot](figures/cox_forest_plot.png)
 
-Each point is the estimated hazard ratio for that predictor after adjusting for all
+*Each point is the estimated hazard ratio for that predictor after adjusting for all
 others. Red points are risk-increasing (HR > 1), blue are protective (HR < 1).
 The dashed line at HR = 1 is the reference. Confidence intervals that do not cross
-the line indicate statistical significance.
+the line indicate statistical significance.*
 
 ---
 
@@ -193,10 +193,10 @@ the line indicate statistical significance.
 
 ![Variable importance](figures/variable_importance.png)
 
-Predictors ranked by absolute log-hazard coefficient, the strength of each
+*Predictors ranked by absolute log-hazard coefficient, the strength of each
 predictor's contribution regardless of direction. Complements the forest plot:
 where the forest plot shows direction and precision, this plot shows raw magnitude
-and ranking.
+and ranking.*
 
 ---
 
@@ -206,10 +206,10 @@ and ranking.
 
 ![ROC curve](figures/roc_curve.png)
 
-Plots sensitivity against 1,  specificity as the classification threshold varies
+*Plots sensitivity against 1,  specificity as the classification threshold varies
 across the Cox linear predictor. The diagonal dashed line is a random classifier
 (AUC = 0.5). Values above 0.70 are generally considered clinically useful for
-prognostic models.
+prognostic models.*
 
 ---
 
@@ -217,11 +217,11 @@ prognostic models.
 
 ![Calibration plot](figures/calibration_plot.png)
 
-Patients are divided into ten bins by predicted probability of death. Mean predicted
+*Patients are divided into ten bins by predicted probability of death. Mean predicted
 probability in each bin is plotted against the observed proportion who actually died.
 Points on the diagonal indicate perfect calibration. Points above the line mean the
 model underpredicts risk; below means overprediction. Smaller points reflect fewer
-patients in that bin, common at the high-probability end due to class imbalance.
+patients in that bin, common at the high-probability end due to class imbalance.*
 
 ---
 
