@@ -9,11 +9,11 @@
 
 ## Overview
 
-Predicting who will die after a heart attack is only part of the clinical problem. Equally important — and often overlooked in binary classification models — is understanding *when* patients are most at risk and which characteristics drive that timing. A patient who dies within hours of admission faces a fundamentally different clinical situation than one who deteriorates on day two or three, yet a logistic regression model treats both outcomes as identical.
+Predicting who will die after a heart attack is only part of the clinical problem. Equally important and often overlooked in binary classification models is understanding when patients are most at risk and which characteristics drive that timing. A patient who dies within hours of admission faces a fundamentally different clinical situation than one who deteriorates on day two or three, yet a logistic regression model treats both outcomes as identical. This project seeks to model what happens after the heart attack, specifically during those three days in the hospital. Given that a patient just had a heart attack and was admitted, what is their risk of dying before they leave?
 
-This project applies **survival analysis** to a dataset of **1,700 myocardial infarction (MI) patients** admitted to Krasnoyarsk Interdistrict Clinical Hospital No. 20 (Russia, 1992–1995). Rather than predicting a binary outcome, the analysis models the *hazard* — the instantaneous risk of dying at any point during the hospital stay — and examines how five key clinical predictors modify that risk over time.
+This project applies survival analysis to a dataset of 1,700 myocardial infarction (MI) patients admitted to Krasnoyarsk Interdistrict Clinical Hospital No. 20 (Russia, 1992–1995). Rather than predicting a binary outcome, the analysis models the *hazard*, the instantaneous risk of dying at any point during the hospital stay and examines how five key clinical predictors modify that risk over time.
 
-The five predictors were identified as the strongest independent risk factors in a companion logistic regression analysis and span distinct clinical domains:
+The five predictors were identified as the strongest independent risk factors and span distinct clinical domains:
 
 | Predictor | Clinical domain |
 |---|---|
@@ -23,7 +23,7 @@ The five predictors were identified as the strongest independent risk factors in
 | Chronic heart failure history | Cardiac history |
 | Right ventricular MI at admission | Acute presentation |
 
-The dataset is publicly available from the [UCI Machine Learning Repository](https://archive.ics.uci.edu/dataset/579/myocardial+infarction+complications) (DOI: [10.24432/C53P5M](https://doi.org/10.24432/C53P5M)) and downloads automatically — no manual setup required.
+The dataset is publicly available from the [UCI Machine Learning Repository](https://archive.ics.uci.edu/dataset/579/myocardial+infarction+complications) (DOI: [10.24432/C53P5M](https://doi.org/10.24432/C53P5M)) and downloads automatically. No manual setup required.
 
 ---
 
@@ -38,13 +38,16 @@ The dataset is publicly available from the [UCI Machine Learning Repository](htt
 | **Time variable** | Hospital day (1, 2, or 3) — proxy for time to event |
 | **Missing data** | ~7.6% across all variables |
 
-The outcome `LET_IS` is collapsed to a binary event indicator (0 = censored/survived, 1 = died from any cause). The time variable is a three-point proxy constructed from hospital day status variables — patients still alive at day 3 are right-censored, meaning we know they survived the observation window but cannot observe them beyond it.
+The outcome `LET_IS` is collapsed to a binary event indicator (0 = censored/survived, 1 = died from any cause). In survival analysis, *censoring* refers to incomplete observation of the event of interest. In this case, death from any cause following a myocardial infarction. A patient is censored when the study period (the three-day hospital admission window) ends before death is observed, but it is known that the patient survived at least until that point. Since all 1,700 patients in this dataset were admitted following a confirmed heart attack, the event being tracked is not the heart attack itself but whether and when death occurs during the hospital stay.
+
+There's no direct timestamp in the data. Instead, time is approximated using a variable that tracks whether a patient is in their first day of hospitalization, a middle day, or their last. That three-stage sequence: admission, middle, discharge is in chronological order. Patients discharged alive at the end of day 3 are *right-censored*, we know they survived the observation window, but cannot observe what happens after discharge.
 
 ---
 
 ## Patient Cohort
 
-The table below summarises the patient population split by outcome. Patients who died were older on average and had higher rates of every comorbidity examined — consistent with the predictor selection from the companion logistic analysis.
+The table below summarises the patient population split by outcome. 
+Patients who died were older on average and had higher rates of every comorbidity examined.
 
 | Variable | Survived | Died |
 |---|---|---|
@@ -63,7 +66,7 @@ The table below summarises the patient population split by outcome. Patients who
 
 ### Part A — Kaplan-Meier Estimation
 
-The **Kaplan-Meier (KM) estimator** is a nonparametric method for estimating the survival function S(t) — the probability of surviving beyond time t — directly from censored data. It makes no distributional assumptions about event times, which makes it the standard first step in any survival analysis.
+The **Kaplan-Meier (KM) estimator** is a nonparametric method for estimating the survival function S(t), the probability of surviving beyond time t, directly from censored data. It makes no distributional assumptions about event times. It is the standard first step in any survival analysis.
 
 The estimator is defined as:
 
