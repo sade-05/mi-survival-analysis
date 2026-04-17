@@ -19,8 +19,7 @@ library(broom)
 # -----------------------------------------------------------------------------
 # 1. DATA INGESTION
 # -----------------------------------------------------------------------------
-# Downloads directly from UCI — no manual download needed.
-# MI.data is headerless so column names are assigned from the UCI variable list.
+# Downloads directly from UCI 
 
 zip_url  <- "https://archive.ics.uci.edu/static/public/579/myocardial+infarction+complications.zip"
 zip_path <- tempfile(fileext = ".zip")
@@ -75,7 +74,7 @@ cat("Rows:", nrow(raw_data), "| Columns:", ncol(raw_data), "\n")
 # 2. OUTCOME & PREDICTOR ENGINEERING
 # -----------------------------------------------------------------------------
 # LET_IS codes: 0 = survived, 1-7 = various causes of death.
-# We collapse to a binary event (0 = censored/survived, 1 = died).
+# Collapse to a binary event (0 = censored/survived, 1 = died).
 #
 # Time proxy: the dataset records patient status at hospital days 1, 2, and 3.
 # time_days = the last day a patient was documented. Survivors are
@@ -136,7 +135,7 @@ dir.create("outputs", showWarnings = FALSE)
 # =============================================================================
 
 
-# A helper function to avoid repeating the same plotting code three times.
+# This is a helper function to avoid repeating the same plotting code three times.
 # It takes a fitted survfit object and group label, and returns a ggplot.
 
 plot_km <- function(km_fit, group_label, palette) {
@@ -238,8 +237,8 @@ ggsave("figures/km_right_vent_mi.png", width = 7, height = 5, dpi = 150)
 #   HR < 1 = lower instantaneous risk of death
 #   HR = 1 = no effect
 #
-# The proportional hazards assumption — that HRs are constant over time —
-# is checked using Schoenfeld residuals via cox.zph().
+# The proportional hazards assumption states that HRs are constant over time. 
+# We check using Schoenfeld residuals via cox.zph().
 # =============================================================================
 
 
@@ -261,7 +260,7 @@ summary(cox_model)
 # B2. PROPORTIONAL HAZARDS ASSUMPTION CHECK
 # -----------------------------------------------------------------------------
 # A significant p-value (< 0.05) for a predictor suggests its effect
-# is not constant over time — a violation of the Cox model assumption.
+# is not constant over time and a violation of the Cox model assumption.
 
 cat("\n--- Proportional hazards test (Schoenfeld residuals) ---\n")
 tryCatch(
@@ -322,7 +321,7 @@ cat("\nAnalysis complete. Figures saved to figures/ and table to outputs/\n")
 # -----------------------------------------------------------------------------
 # 1. DESCRIPTIVE STATISTICS TABLE
 # -----------------------------------------------------------------------------
-# Summarises the patient cohort split by outcome — survived vs. died.
+# Summarises the patient cohort split by outcome: survived vs. died.
 # Gives any reader immediate context about who the patients are before
 # any modelling results are presented.
 
@@ -463,4 +462,4 @@ ggplot(cal_df, aes(x = mean_pred, y = obs_rate)) +
 
 ggsave("figures/calibration_plot.png", width = 6, height = 6, dpi = 150)
 
-cat("\nAdditional outputs complete.\n")
+
