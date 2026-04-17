@@ -278,7 +278,18 @@ tryCatch(
 # The dashed vertical line at HR = 1 is the reference (no effect).
 # Points to the right indicate increased risk; left indicates protection.
 
-cox_tidy <- tidy(cox_model, exponentiate = TRUE, conf.int = TRUE)
+cox_tidy <- tidy(cox_model, exponentiate = TRUE, conf.int = TRUE) %>%
+  mutate(
+    term = case_when(
+      term == "obesityObesity"         ~ "Obesity",
+      term == "asthmaAsthma"          ~ "Asthma",
+      term == "chf_historyCHF history" ~ "CHF history",
+      term == "right_vent_miYes"      ~ "Right vent MI: Yes",
+      term == "age_group45 to 64"     ~ "Age group: 45 to 64",
+      term == "age_group65 and over"  ~ "Age group: 65 and over",
+      TRUE                            ~ str_replace_all(term, "_", " ")
+    )
+  )
 
 ggplot(cox_tidy, aes(x = estimate, y = reorder(term, estimate))) +
   geom_vline(xintercept = 1, linetype = "dashed", colour = "grey60") +
@@ -290,7 +301,7 @@ ggplot(cox_tidy, aes(x = estimate, y = reorder(term, estimate))) +
                       name   = NULL) +
   scale_x_log10() +
   labs(
-    title    = "Cox model: hazard ratios with 95% confidence intervals",
+    title    = "Cox model: hazard ratios with 95% CIs",
     subtitle = "HR > 1 indicates higher risk of in-hospital death",
     x        = "Hazard ratio (log scale)",
     y        = NULL
@@ -358,16 +369,24 @@ cox_raw <- tidy(cox_model, exponentiate = FALSE, conf.int = TRUE) %>%
   mutate(
     direction = if_else(estimate > 0, "Risk-increasing", "Protective"),
     abs_coef  = abs(estimate),
-    term      = str_replace_all(term, "_", " ")
+    term = case_when(
+      term == "obesityObesity"         ~ "Obesity",
+      term == "asthmaAsthma"          ~ "Asthma",
+      term == "chf_historyCHF history" ~ "CHF history",
+      term == "right_vent_miYes"      ~ "Right vent MI: Yes",
+      term == "age_group45 to 64"     ~ "Age group: 45 to 64",
+      term == "age_group65 and over"  ~ "Age group: 65 and over",
+      TRUE                            ~ str_replace_all(term, "_", " ")
+    )
   )
 
 ggplot(cox_raw, aes(x = abs_coef, y = reorder(term, abs_coef),
                     fill = direction)) +
   geom_col(width = 0.65, alpha = 0.85) +
   scale_fill_manual(values = c("Protective"      = "steelblue",
-                                "Risk-increasing" = "tomato")) +
+                               "Risk-increasing" = "tomato")) +
   labs(
-    title    = "Variable importance — Cox proportional hazards model",
+    title    = "Variable importance - Cox PH model",
     subtitle = "Ranked by absolute log-hazard coefficient",
     x        = "Absolute log-hazard coefficient",
     y        = NULL,
