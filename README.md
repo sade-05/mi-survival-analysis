@@ -9,11 +9,11 @@
 
 ## Overview
 
-Predicting who will die after a heart attack is only part of the clinical problem. Equally important and often overlooked in binary classification models is understanding when patients are most at risk and which characteristics drive that timing. A patient who dies within hours of admission faces a fundamentally different clinical situation than one who deteriorates on day two or three, yet a logistic regression model treats both outcomes as identical. This project seeks to model what happens after the heart attack, specifically during those three days in the hospital. Given that a patient just had a heart attack and was admitted, what is their risk of dying before they leave?
+Predicting who will die after a heart attack is only part of the clinical problem. Equally important and often overlooked in binary classification models is understanding when patients are most at risk and which characteristics drive that timing. A patient who dies within hours of admission faces a fundamentally different clinical situation than one who deteriorates on day two or three. This project seeks to model what happens after the heart attack, specifically during those three days in the hospital. Given that a patient just had a heart attack and was admitted, what is their risk of dying before they leave?
 
 This project applies survival analysis to a dataset of 1,700 myocardial infarction (MI) patients admitted to Krasnoyarsk Interdistrict Clinical Hospital No. 20 (Russia, 1992–1995). Rather than predicting a binary outcome, the analysis models the *hazard*, the instantaneous risk of dying at any point during the hospital stay and examines how five key clinical predictors modify that risk over time.
 
-The five predictors were identified as the strongest independent risk factors and span distinct clinical domains:
+These five predictors were identified as the strongest independent risk factors and span distinct clinical domains:
 
 | Predictor | Clinical domain |
 |---|---|
@@ -23,7 +23,7 @@ The five predictors were identified as the strongest independent risk factors an
 | Chronic heart failure history | Cardiac history |
 | Right ventricular MI at admission | Acute presentation |
 
-The dataset is publicly available from the [UCI Machine Learning Repository](https://archive.ics.uci.edu/dataset/579/myocardial+infarction+complications) (DOI: [10.24432/C53P5M](https://doi.org/10.24432/C53P5M)) and downloads automatically. No manual setup required.
+The dataset is publicly available from the [UCI Machine Learning Repository](https://archive.ics.uci.edu/dataset/579/myocardial+infarction+complications) (DOI: [10.24432/C53P5M](https://doi.org/10.24432/C53P5M)) and downloads automatically. 
 
 ---
 
@@ -40,7 +40,7 @@ The dataset is publicly available from the [UCI Machine Learning Repository](htt
 
 The outcome `LET_IS` is collapsed to a binary event indicator (0 = censored/survived, 1 = died from any cause). In survival analysis, *censoring* refers to incomplete observation of the event of interest. In this case, death from any cause following a myocardial infarction. A patient is censored when the study period (the three-day hospital admission window) ends before death is observed, but it is known that the patient survived at least until that point. Since all 1,700 patients in this dataset were admitted following a confirmed heart attack, the event being tracked is not the heart attack itself but whether and when death occurs during the hospital stay.
 
-There's no direct timestamp in the data. Instead, time is approximated using a variable that tracks whether a patient is in their first day of hospitalization, a middle day, or their last. That three-stage sequence: admission, middle discharge is in chronological order. Patients discharged alive at the end of day 3 are *right-censored*, we know they survived the observation window, but cannot observe what happens after discharge.
+There's no direct timestamp in the data. Instead, time is approximated using a variable that tracks whether a patient is in their first, second or third day of hospitalization, a three-stage sequence: admission - 1st day, middle - 2nd day, discharge- 3rd day. Patients discharged alive at the end of day 3 are *right-censored* meaninig paatients survived the observation window, but it cannot be observed what happens after their discharge.
 
 ---
 
