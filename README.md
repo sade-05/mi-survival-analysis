@@ -140,7 +140,6 @@ One of the most clinically significant findings is that the vast majority of in-
 
 ## Figures
 
----
 
 ### Kaplan-Meier survival curves
 
