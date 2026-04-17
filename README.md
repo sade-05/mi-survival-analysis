@@ -148,9 +148,9 @@ One of the most clinically significant findings is that the vast majority of in-
 
 ![KM curves by age group](figures/km_age_group.png)
 
-*Three survival curves, one per age band. The gap between the 65-and-over group
-and younger patients is visible from day 1 and widens over time. The log-rank
-p-value in the subtitle confirms whether the separation is statistically significant.*
+*This plot shows three survival curves, one for each age group, tracking the probability of still being alive at each point during the hospital stay. The further a curve drops, the more patients in that group died. The gap between the 65-and-over group and the younger groups is visible from day 1 and widens over time, meaning older patients faced higher mortality risk from the moment of admission and that disadvantage did not close as the hospital stay progressed.*
+
+*The shaded ribbon around each curve is the 95% confidence interval. It is the range within which the true survival probability plausibly falls. Wider ribbons mean fewer patients in that group and therefore less certainty about the estimate. The log-rank p-value in the subtitle formally tests whether the gaps between the three curves are real or could simply be due to chance. A p-value below 0.05 means the differences in survival between age groups are statistically significant and unlikely to be a coincidence.*
 
 ---
 
@@ -206,10 +206,9 @@ and ranking.*
 
 ![ROC curve](figures/roc_curve.png)
 
-*Plots sensitivity against 1,  specificity as the classification threshold varies
-across the Cox linear predictor. The diagonal dashed line is a random classifier
-(AUC = 0.5). Values above 0.70 are generally considered clinically useful for
-prognostic models.*
+*This plot shows how well the model separates patients who died from those who survived. Sensitivity is the model's ability to correctly identify patients who actually died, catching true deaths. Specificity is its ability to correctly identify patients who actually survived, avoiding false alarms.*
+
+*The curve is drawn by varying the risk threshold: as we lower the threshold to flag more patients as high risk, sensitivity goes up (we catch more deaths) but specificity goes down (we also flag more survivors incorrectly). The diagonal dashed line represents a model that is essentially guessing randomly. The AUC number summarises the whole curve in one figure: an AUC of 0.82 means that if you picked one patient who died and one who survived at random, the model correctly assigned the higher risk score to the patient who died 82% of the time. Values above 0.70 are generally considered clinically useful for prognostic models.*
 
 ---
 
@@ -217,27 +216,25 @@ prognostic models.*
 
 ![Calibration plot](figures/calibration_plot.png)
 
-*Patients are divided into ten bins by predicted probability of death. Mean predicted
-probability in each bin is plotted against the observed proportion who actually died.
-Points on the diagonal indicate perfect calibration. Points above the line mean the
-model underpredicts risk; below means overprediction. Smaller points reflect fewer
-patients in that bin, common at the high-probability end due to class imbalance.*
+*This plot checks whether the model's predicted probabilities are trustworthy. Patients are split into ten groups based on their predicted risk of dying, from lowest to highest. For each group, we compare what the model predicted against what actually happened. If the model predicted a 20% chance of death for a group, did roughly 20% of them actually die?* 
+
+*Points sitting on the diagonal line mean the model got it right. Points above the line mean the model was too optimistic and more people died than predicted. Points below the line mean the model was too cautious and fewer people died than predicted. The size of each point shows how many patients were in that group. The smaller points on the right side of the plot simply reflect the fact that very few patients in this dataset were predicted to be high risk. Only 13.5% of all patients died, so high-risk predictions are naturally rare.*
 
 ---
 
 ## Limitations
 
-**Coarse time variable**: Survival analysis works best when you know exactly when each event happened, down to the hour if possible. This dataset only tells us which day a patient was on: day 1, day 2, or day 3. That three-point scale is a rough approximation of time rather than a true continuous measure. The practical consequence is that we cannot detect subtle changes in risk that happen within a single day, and we cannot apply parametric survival models, methods like Weibull or log-normal regression that fit a smooth mathematical curve to the hazard over time because those models require a continuous time variable to estimate properly. Think of it like trying to describe a detailed landscape using only three elevation readings. You get the general shape but miss everything in between.
+**Coarse time variable**: Survival analysis works best when you know exactly when each event happened, down to the hour if possible. This dataset only tells us which day a patient was on: day 1, day 2, or day 3. That three-point scale is a rough approximation of time rather than a true continuous measure. The practical consequence is that we cannot detect subtle changes in risk that happen within a single day, and we cannot apply parametric survival models, methods like Weibull or log-normal regression that fit a smooth mathematical curve to the hazard over time because those models require a continuous time variable to estimate properly. 
 
 **Right-censoring assumption**: When a patient is discharged alive and their record is censored, the Cox model assumes that discharge carries no information about their future risk. In other words, patients were sent home because they recovered, not because they were too sick to benefit from further care. This is called non-informative censoring, and in a short three-day hospital window it is a reasonable assumption. A patient discharged on day 2 was almost certainly improving. However, this assumption cannot be formally tested from the data we have. We simply cannot observe what happened to those patients after they left. If even a small number were discharged in a deteriorating condition, the censoring would be informative and our survival estimates would be slightly optimistic.
 
-**Small event count at later time points**: Because the vast majority of deaths occur on day 1, very few patients remain in the risk set — the group still alive and being observed — by days 2 and 3. Statistically, when fewer patients are at risk, the hazard estimates become less stable and the confidence intervals around them widen considerably. A wide confidence interval means we are less certain about the true value. Any findings specific to day 2 or day 3 should therefore be treated with caution — the data is simply too thin at those time points to draw firm conclusions.
+**Small event count at later time points**: Because the vast majority of deaths occur on day 1, very few patients remain in the risk set of the group still alive and being observed by days 2 and 3. Statistically, when fewer patients are at risk, the hazard estimates become less stable and the confidence intervals around them widen considerably. A wide confidence interval means we are less certain about the true value. Any findings specific to day 2 or day 3 should therefore be treated with caution. The data is too thin at those time points to draw firm conclusions.
 
-**Proportional hazards**: The Cox model operates on a core assumption: the hazard ratio between any two patients stays constant throughout the entire follow-up period. A predictor that doubles the risk on day 1 is assumed to also double it on day 2 and day 3, the ratio never changes, only the baseline level of risk changes with time. For predictors like right ventricular MI or abnormal heart rate at admission, this is clinically questionable. Those findings are acutely dangerous in the first hours after a heart attack but become less predictive once the patient has stabilised. If a formal test — Schoenfeld residuals via cox.zph() — confirms that the effect of such a predictor changes significantly over time, a stratified Cox model (which allows a separate baseline hazard for different groups) or an Accelerated Failure Time model (which directly models how predictors speed up or slow down the time to death) would be more appropriate alternatives.
+**Proportional hazards**: The Cox model operates on a core assumption: the hazard ratio between any two patients stays constant throughout the entire follow-up period. A predictor that doubles the risk on day 1 is assumed to also double it on day 2 and day 3, the ratio never changes, only the baseline level of risk changes with time. For predictors like right ventricular MI or abnormal heart rate at admission, this is clinically questionable. Those findings are acutely dangerous in the first hours after a heart attack but become less predictive once the patient has stabilised. If a formal test like Schoenfeld residuals via cox.zph() confirms that the effect of such a predictor changes significantly over time, a stratified Cox model (which allows a separate baseline hazard for different groups) or an Accelerated Failure Time model (which directly models how predictors speed up or slow down the time to death) would be more appropriate alternatives.
 
-**Historical cohort**: The data was collected between 1992 and 1995 before several treatments that are now standard of care in MI management. Primary PCI (coronary stenting, which physically reopens the blocked artery) was not yet widely available. High-intensity statin therapy and modern dual antiplatelet protocols which dramatically reduce post-MI mortality were not in routine use. This matters because the predictor-outcome relationships we identified reflect a world where patients received different, less effective treatment. The finding that ICU anticoagulation is protective, for example, may look very different in a modern cohort where anticoagulation is standard for almost everyone rather than variable.
+**Historical cohort**: The data was collected between 1992 and 1995 before several treatments that are now standard of care in MI management. Primary PCI (coronary stenting, which physically reopens the blocked artery) was not yet widely available. High-intensity statin therapy and modern dual antiplatelet protocols which dramatically reduce post-MI mortality were not in routine use. This matters because the predictor-outcome relationships identified reflect a world where patients received different, less effective treatment. 
 
-**Single institution**: All 1,700 patients came from one hospital in Krasnoyarsk, Russia. The results are internally valid — meaning the findings accurately describe this specific cohort but they cannot be assumed to generalise to patients at other hospitals, in other countries, or treated in other time periods. Differences in institutional protocols, patient demographics, and case mix all affect outcomes in ways the model cannot account for. External validation on an independent dataset would be the necessary next step before drawing any broader conclusions.
+**Single institution**: All 1,700 patients came from one hospital in Krasnoyarsk, Russia. The findings accurately describe this specific cohort but they cannot be assumed to generalise to patients at other hospitals, in other countries, or treated in other time periods. Differences in institutional protocols, patient demographics, and case mix all affect outcomes in ways the model cannot account for. 
 
 ---
 
