@@ -1,0 +1,7 @@
+"term","estimate","conf.low","conf.high","p.value"
+"Age group: 45 to 64",3.556,1.303,9.701,0.013
+"Age group: 65 and over",6.539,2.411,17.739,0
+"Obesity",1.966,1.064,3.633,0.031
+"Asthma",2.229,1.179,4.217,0.014
+"CHF history",1.932,1.386,2.692,0
+"Right vent MI: Yes",3.954,2.49,6.28,0
