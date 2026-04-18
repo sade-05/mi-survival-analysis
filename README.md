@@ -35,12 +35,12 @@ The dataset is publicly available from the [UCI Machine Learning Repository](htt
 | **Patients** | 1,700 |
 | **Input features** | 111 (medical history, ECG results, blood tests, medications) |
 | **Outcome** | `LET_IS`: 0 = survived; 1–7 = seven distinct causes of death |
-| **Time variable** | Hospital day (1, 2, or 3) — proxy for time to event |
+| **Time variable** | Hospital day (1, 2, or 3)- proxy for time to event |
 | **Missing data** | ~7.6% across all variables |
 
 The outcome `LET_IS` is collapsed to a binary event indicator (0 = censored/survived, 1 = died from any cause). In survival analysis, *censoring* refers to incomplete observation of the event of interest. In this case, death from any cause following a myocardial infarction. A patient is censored when the study period (the three-day hospital admission window) ends before death is observed, but it is known that the patient survived at least until that point. Since all 1,700 patients in this dataset were admitted following a confirmed heart attack, the event being tracked is not the heart attack itself but whether and when death occurs during the hospital stay.
 
-There's no direct timestamp in the data. Instead, time is approximated using a variable that tracks whether a patient is in their first, second or third day of hospitalization, a three-stage sequence: admission - 1st day, middle - 2nd day, discharge- 3rd day. Patients discharged alive at the end of day 3 are *right-censored* meaninig paatients survived the observation window, but it cannot be observed what happens after their discharge.
+There's no direct timestamp in the data. Instead, time is approximated using a variable that tracks whether a patient is in their first, second or third day of hospitalization, a three-stage sequence: admission - 1st day, 2nd day, discharge on 3rd day. Patients discharged alive at the end of day 3 are *right-censored* meaninig paatients survived the observation window, but it cannot be observed what happens after their discharge.
 
 ---
 
@@ -52,7 +52,7 @@ Patients who died were older on average and had higher rates of every comorbidit
 | Variable | Survived | Died |
 |---|---|---|
 | N | 1,429 | 271 |
-| Age — mean (SD) | 61.2 (11.1) | 65.8 (10.4) |
+| Age: mean (SD) | 61.2 (11.1) | 65.8 (10.4) |
 | Male (%) | 62.1% | 64.2% |
 | Obesity (%) | 2.2% | 4.8% |
 | Bronchial asthma (%) | 1.7% | 5.2% |
@@ -66,7 +66,17 @@ Patients who died were older on average and had higher rates of every comorbidit
 
 ### Part A - Kaplan-Meier Estimation
 
-The **Kaplan-Meier (KM) estimator** is a nonparametric method for estimating the survival function S(t), the probability of surviving beyond time t, directly from censored data. It makes no distributional assumptions about event times. It is the standard first step in any survival analysis.
+The **Kaplan-Meier (KM) estimator** is a non-parametric statistical method used to estimate the survival function from observed data especially when some subjects haven't experienced the event yet (censored observations). S(t) is the *survival function*: the probability that a subject survives (i.e., has not yet experienced the event of interest) beyond time t.
+
+S(t) = P(T > t)
+
+Where T is the random variable representing the time of the event.
+
+Key properties:
+
+S(0) = 1:  at the start, everyone has "survived"
+S(∞) → 0:  eventually, all subjects experience the event
+S(t) is monotonically non-increasing meaning as time passes, the probability of "still surviving" can only stay the same or decrease. It can never increase.
 
 The estimator is defined as:
 
@@ -75,15 +85,35 @@ S(t) = ∏  (1 - dᵢ / nᵢ)
       tᵢ ≤ t
 ```
 
-where dᵢ is the number of deaths observed at time tᵢ and nᵢ is the number of patients still at risk (neither dead nor censored) just before tᵢ. The product runs over all observed event times up to and including t. At each event time, the survival probability drops by the fraction of at-risk patients who die, patients who have been censored before tᵢ are simply removed from the risk set without contributing to the probability drop.
+where dᵢ is the number of deaths observed at time tᵢ and nᵢ is the number of patients still at risk (neither dead nor censored) just before tᵢ. The product, ∏ , runs over all observed event times up to and including t. At each event time, the survival probability drops by the fraction of at-risk patients who die. Patients who have been censored before tᵢ are simply removed from the risk set without contributing to the probability drop.
 
 KM curves are estimated separately for each predictor subgroup. Group differences are formally tested using the **log-rank test**, which compares observed vs. expected death counts across groups under the null hypothesis that all groups share the same underlying survival function:
 
 ```
 H₀: S₁(t) = S₂(t) = ... = Sₖ(t)  for all t
 ```
+The null hypothesis is simply asserting that at every point in time, the probability of surviving is identical across all k groups. There is no difference in survival experience between them  whether you're in group 1, group 2, or group k, your chances of surviving past any given moment are the same.
 
-The log-rank statistic follows a chi-squared distribution with k−1 degrees of freedom under H₀. A p-value < 0.05 is taken as evidence of a statistically significant difference in survival between groups.
+
+## Log-Rank Statistic
+
+$$\chi^2 = \sum_{j} \frac{(O_j - E_j)^2}{E_j}$$
+
+**Where:**
+- $O_j$ = total observed deaths in group $j$
+- $E_j$ = total expected deaths in group $j$ under $H_0$
+
+### Expected Deaths at Each Event Time
+
+$$e_{ij} = \frac{n_{ij}}{n_i} \times d_i$$
+
+**Where:**
+- $n_{ij}$ = number at risk in group $j$ at time $t_i$
+- $n_i$ = total number at risk across all groups at time $t_i$
+- $d_i$ = total deaths across all groups at time $t_i$
+
+The **log-rank statistic** follows a chi-squared distribution with k−1 degrees of freedom under H₀. A p-value < 0.05 is taken as evidence of a statistically significant difference in survival between groups.
+
 
 KM curves and the log-rank test are **unadjusted**. They show the marginal relationship between a single predictor and survival without controlling for the other four predictors. Two patients with the same age group may differ in obesity status, cardiac history, and MI type, all of which also affect survival. The Cox model in Part B provides the adjusted estimates that account for this.
 
@@ -104,7 +134,7 @@ HR = exp(βⱼ)
 
 A hazard ratio of 2.5 for a given predictor means patients with that characteristic are dying at 2.5 times the instantaneous rate of the reference group at any given moment, holding all other predictors constant. HR > 1 indicates increased risk; HR < 1 indicates a protective effect; HR = 1 means no effect.
 
-The key underlying assumption is **proportional hazards**, that the hazard ratio between any two patients is constant over the entire follow-up period. In other words, if patients with right ventricular MI have twice the hazard of those without, that ratio of two holds at day 1, day 2, and day 3. This assumption is tested using **Schoenfeld residuals** via `cox.zph()`: under the proportional hazards assumption, Schoenfeld residuals should show no systematic trend with time. A significant p-value (< 0.05) for a predictor suggests its effect is time-varying, which in this dataset is clinically plausible, the impact of acute haemodynamic findings at admission may be very large in the first hours and attenuate as the patient stabilises.
+The key underlying assumption is **proportional hazards**, that the hazard ratio between any two patients is constant over the entire follow-up period. In other words, if patients with right ventricular MI have twice the hazard of those without, that ratio of two holds at day 1, day 2, and day 3. This assumption is tested using **Schoenfeld residuals** via `cox.zph()`: under the proportional hazards assumption, Schoenfeld residuals should show no systematic trend with time. A significant p-value (< 0.05) for a predictor indicates that its effect on survival changes over time rather than remaining constant. The impact of the patient's cardiovascular status at admission may be very large in the first hours and reduce as the patient stabilizes.
 
 ### Part C - Model Diagnostics
 
@@ -114,7 +144,7 @@ Three diagnostic outputs assess how well the Cox model discriminates between pat
 
 **Calibration plot**: Discrimination and calibration are distinct properties. A model can rank patients correctly (high AUC) while still predicting systematically wrong probabilities. The calibration plot checks this by binning patients into ten equal groups by predicted probability, then plotting the mean predicted probability in each bin against the observed proportion who actually died. Points lying on the 45-degree diagonal indicate a perfectly calibrated model. Systematic departure above the diagonal signals underprediction; below it signals overprediction.
 
-**Variable importance**: Predictors are ranked by the absolute magnitude of their log-hazard coefficient, how strongly each one moves the hazard in either direction, regardless of sign. This provides a model-agnostic summary of which predictors carry the most weight and complements the hazard ratio forest plot, which shows direction and precision but not relative ranking.
+**Variable importance**: To quantify variable importance, we focus on the size of each predictor's effect in isolation. A predictor that strongly reduces risk ranks just as highly as one that strongly increases it and yields a clear ordering of predictors from most to least influential.
 
 ---
 
@@ -124,13 +154,13 @@ Three diagnostic outputs assess how well the Cox model discriminates between pat
 
 Survival curves differed significantly by age group (log-rank p < 0.05), with the 65-and-over cohort showing the steepest early decline. The survival gap between age groups is most pronounced in the first 24 hours, suggesting that age-related risk concentrates in the acute phase rather than accumulating over the hospital stay.
 
-Obesity and right ventricular MI also produced visually and statistically distinct survival curves. Patients with right ventricular MI showed a sharp early drop that was not observed in other subgroups, consistent with the haemodynamic mechanism: right ventricular dysfunction directly impairs forward circulation and can precipitate cardiogenic shock rapidly after admission.
+Obesity and right ventricular MI also produced visually and statistically distinct survival curves. Patients with right ventricular MI showed a sharp early drop that was not observed in other subgroups, consistent with the patient's cardiovascular status: right ventricular dysfunction directly impairs forward circulation and can precipitate cardiogenic shock rapidly after admission.
 
 ### Cox model - adjusted hazard ratios
 
-After simultaneously adjusting for all five predictors, right ventricular MI and older age group retained the largest hazard ratios, consistent with the findings from the companion logistic regression. The presence of bronchial asthma and chronic heart failure also remained independently associated with increased hazard, confirming that their effect in the logistic model was not confounded by the other predictors.
+After simultaneously adjusting for all five predictors, right ventricular MI and older age group retained the largest hazard ratios. The presence of bronchial asthma and chronic heart failure also remained independently associated with increased hazard.
 
-The proportional hazards assumption held for most predictors. Where marginal evidence of time-varying effects was detected, particularly for predictors related to acute haemodynamic status at admission, the pattern was clinically coherent: their hazard impact is largest immediately after admission and attenuates in patients who survive the first 24 hours.
+The proportional hazards assumption held for most predictors. Where marginal evidence of time-varying effects was detected, particularly for predictors related to the patient's cardiovascular status at admission, the pattern was clinically grounded: their hazard impact is largest immediately after admission and reduces in patients who survive the first 24 hours.
 
 ### Concentration of early mortality
 
@@ -159,8 +189,7 @@ One of the most clinically significant findings is that the vast majority of in-
 
 *Two curves comparing patients with and without obesity history. Because obesity
 is rare in this dataset (~3%), confidence bands around the obese group are wider.
-A steep early drop in the obese group is consistent with the odds ratio of 3.19
-found in the companion logistic model.*
+
 
 ---
 
@@ -169,9 +198,9 @@ found in the companion logistic model.*
 ![KM curves by right ventricular MI](figures/km_right_vent_mi.png)
 
 *The most visually striking of the three KM plots. A sharp early drop in the right
-ventricular MI curve within the first 24 hours is consistent with the haemodynamic
-mechanism, RV dysfunction directly impairs forward circulation and can precipitate
-cardiogenic shock rapidly after admission.*
+ventricular MI curve within the first 24 hours is consistent with the patient's cardiovascular status, 
+Right Ventricular dysfunction directly impairs forward circulation and can propel cardiogenic 
+shock rapidly after admission.*
 
 ---
 
@@ -181,7 +210,7 @@ cardiogenic shock rapidly after admission.*
 
 ![Cox forest plot](figures/cox_forest_plot.png)
 
-*Each point is the estimated hazard ratio for that predictor after adjusting for all
+***Forest plot** Each point is the estimated hazard ratio for that predictor after adjusting for all
 others. Red points are risk-increasing (HR > 1), blue are protective (HR < 1).
 The dashed line at HR = 1 is the reference. Confidence intervals that do not cross
 the line indicate statistical significance.*
