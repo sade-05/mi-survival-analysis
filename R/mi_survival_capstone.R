@@ -83,7 +83,7 @@ cat("Rows:", nrow(raw_data), "| Columns:", ncol(raw_data), "\n")
 
 df <- raw_data %>%
   mutate(
-
+    
     # --- Survival outcome ---
     time_days = case_when(
       !is.na(NA_R_3_n) | !is.na(NOT_NA_3_n) ~ 3,
@@ -91,7 +91,7 @@ df <- raw_data %>%
       TRUE                                    ~ 1
     ),
     died = as.integer(LET_IS > 0),
-
+    
     # --- Predictors ---
     age_group = case_when(
       AGE < 45             ~ "Under 45",
@@ -139,10 +139,10 @@ dir.create("outputs", showWarnings = FALSE)
 # It takes a fitted survfit object and group label, and returns a ggplot.
 
 plot_km <- function(km_fit, group_label, palette) {
-
+  
   km_tidy <- tidy(km_fit) %>%
     mutate(group = str_extract(strata, "(?<=\\=).*"))
-
+  
   ggplot(km_tidy, aes(x = time, y = estimate, colour = group)) +
     geom_step(linewidth = 0.9) +
     geom_ribbon(aes(ymin = conf.low, ymax = conf.high, fill = group),
@@ -429,7 +429,7 @@ ggplot(roc_df, aes(x = fpr, y = tpr)) +
            size = 4.5, colour = "steelblue") +
   coord_fixed() +
   labs(
-    title    = "ROC curve — Cox proportional hazards model",
+    title    = "ROC curve - Cox PH model",
     subtitle = "Linear predictor used as continuous risk score",
     x        = "False positive rate (1 - Specificity)",
     y        = "True positive rate (Sensitivity)"
@@ -447,7 +447,7 @@ ggsave("figures/roc_curve.png", width = 6, height = 6, dpi = 150)
 
 base_surv  <- basehaz(cox_model, centered = FALSE)
 median_haz <- base_surv$hazard[which.min(abs(base_surv$time -
-                                              median(df$time_days)))]
+                                               median(df$time_days)))]
 pred_prob  <- 1 - exp(-exp(risk_score) * median_haz)
 
 cal_df <- data.frame(
@@ -469,10 +469,10 @@ ggplot(cal_df, aes(x = mean_pred, y = obs_rate)) +
               linetype = "dashed", colour = "grey50") +
   geom_point(aes(size = n), colour = "steelblue", alpha = 0.8) +
   geom_line(colour = "steelblue") +
-  scale_size_continuous(name = "Patients in bin") +
+  scale_size_continuous(name = "Patients in risk group") +
   coord_fixed(xlim = c(0, 1), ylim = c(0, 1)) +
   labs(
-    title    = "Calibration plot — Cox proportional hazards model",
+    title    = "Calibration plot - Cox PH model",
     subtitle = "Points on the dashed line indicate perfect calibration",
     x        = "Mean predicted probability of death",
     y        = "Observed proportion who died"
@@ -480,5 +480,4 @@ ggplot(cal_df, aes(x = mean_pred, y = obs_rate)) +
   theme_minimal(base_size = 13)
 
 ggsave("figures/calibration_plot.png", width = 6, height = 6, dpi = 150)
-
 
