@@ -272,7 +272,7 @@ and ranking.*
 mi-survival-analysis/
 │
 ├── R/
-│   └── mi_survival_simple.R      # Full analysis script
+│   └── mi_survival_capstone.R    # Full analysis script
 │
 ├── figures/
 │   ├── km_age_group.png          # KM curves by age group
@@ -307,7 +307,7 @@ install.packages(c("tidyverse", "survival", "broom", "pROC"))
 The dataset downloads automatically from UCI
 
 ```r
-source("R/mi_survival_simple.R")
+source("R/mi_survival_capstone.R")
 ```
 
 All figures save to `figures/` and result tables to `outputs/` automatically.
